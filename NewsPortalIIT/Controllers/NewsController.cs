@@ -50,12 +50,6 @@ public class NewsController : BaseController
             existingNews.Title = model.Title;
             existingNews.Body = model.Body;
             existingNews.AuthorId = model.AuthorId;
-            // Preserve CreatedAt and Id from existing record
-            // Update Comments only if provided, otherwise preserve existing
-            if (model.Comments != null)
-            {
-                existingNews.Comments = model.Comments;
-            }
 
             SaveDbData(data);
         }

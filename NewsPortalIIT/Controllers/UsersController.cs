@@ -29,8 +29,8 @@ public class UsersController : BaseController
         if (data.Users == null) data.Users = new List<User>();
 
         // Generate ID
-        int userId = data.Users.Count != 0 ? data.Users.Max(n => n.Id) + 1 : 1;
-        model.Id = userId;
+        int newId = data.Users.Count != 0 ? data.Users.Max(n => n.Id) + 1 : 1;
+        model.Id = newId;
 
         data.Users.Add(model);
 
