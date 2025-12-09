@@ -1,0 +1,15 @@
+
+# Visual Studio folders
+/.vs
+[Oo]bj/
+[Bb]in/
+packages/
+TestResults/
+Logs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

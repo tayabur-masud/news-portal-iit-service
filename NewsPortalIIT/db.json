@@ -1,0 +1,77 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alice Rahman",
+      "email": "alice@example.com"
+    },
+    {
+      "id": 2,
+      "name": "Karim Hossain",
+      "email": "karim@example.com"
+    },
+    {
+      "id": 3,
+      "name": "Nusrat Jahan",
+      "email": "nusrat@example.com"
+    },
+    {
+      "id": 4,
+      "name": "Tayabur Rahman Masud",
+      "email": "tayabur.masud@gmail.com"
+    }
+  ],
+  "news": [
+    {
+      "id": 1,
+      "title": "Govt Announces New Tech Park",
+      "body": "A new state-of-the-art tech park will be established in Dhaka to boost the IT sector...",
+      "authorId": 1,
+      "createdAt": "2025-12-04T10:05:00Z"
+    },
+    {
+      "id": 2,
+      "title": "Local Startup Wins Innovation Award",
+      "body": "A Dhaka-based startup has won an international innovation award for AI-driven solutions...",
+      "authorId": 2,
+      "createdAt": "2025-12-04T11:33:00Z"
+    },
+    {
+      "id": 3,
+      "title": "Tk 35,000cr more needed to revive the fragile banks",
+      "body": "An estimated Tk 70,000 crore, along with time and careful management, would be needed to solve the crisis in the banking sector, said Bangladesh Bank Governor Ahsan H Mansur.\n\nSpeaking at a dialogue hosted by the Bangladesh Investment Development Authority in Dhaka yesterday, he said, \"We have already started addressing the issues of five weak banks and provided Tk 35,000 crore. But several others remain at risk. Resolving their problems will require another Tk 35,000 crore, bringing the total cost to around Tk 70,000 crore.\"\n\nHe said this massive amount cannot be mobilised overnight. \"We are considering allocations over multiple fiscal years. It will have to be a phased recovery, not a one-time fix.\"\n\nThe central bank is prioritising the protection of depositors, Mansur said, adding, \"The defaulters will face the law, but innocent depositors must not suffer.\"\n\nMansur also acknowledged that the non-performing loan (NPL) situation is more serious than previously disclosed. The reported NPL figure had been hovering around 9 percent in the past. It is 36 percent now. \"We are not going to manipulate the data. The public deserves transparency.\"\n\nThe governor said the central bank aims to bring down the NPL rate to 10 percent by March 2026. \"It might take 10 years to reduce it to 4–5 percent, but that is the sustainable path.\"\n\nViable institutions must not be allowed to collapse, he said. \"Institutions are national assets. Closing them would be the easy way out; we could just halt credit lines. But that would destroy jobs and value. Instead, we are choosing the harder path, keeping businesses alive while holding people accountable.\"\n\nHowever, he said Bangladesh Bank is taking steps to liquidate nine non-bank financial institutions (NBFIs), and four to five more NBFIs could face liquidation if they fail to restructure or raise fresh capital.\n\n\"Those that can prove viability will be given a chance to survive. We're not promising miracles. But with time, transparency, and the rule of law, we can rebuild trust in the financial system.\"",
+      "authorId": 4,
+      "createdAt": "2025-12-07T13:48:21.330Z"
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "text": "Great initiative!",
+      "newsId": 1,
+      "authorId": 2,
+      "createdAt": "2025-12-04T10:30:00Z"
+    },
+    {
+      "id": 2,
+      "text": "Hope this brings more jobs.",
+      "newsId": 1,
+      "authorId": 3,
+      "createdAt": "2025-12-04T11:00:00Z"
+    },
+    {
+      "id": 3,
+      "text": "This is a sample comment.",
+      "newsId": 3,
+      "authorId": 2,
+      "createdAt": "2025-12-07T14:18:31.330Z"
+    },
+    {
+      "id": 4,
+      "text": "One more comment",
+      "newsId": 3,
+      "authorId": 1,
+      "createdAt": "2025-12-07T14:21:56.258Z"
+    }
+  ]
+}
