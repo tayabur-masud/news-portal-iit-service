@@ -1,4 +1,4 @@
-﻿namespace NewsPortalIIT.Models;
+﻿namespace NewsPortalIIT.API.Models;
 
 public class News
 {

@@ -1,3 +1,6 @@
 <Solution>
-  <Project Path="NewsPortalIIT/NewsPortalIIT.csproj" />
+  <Project Path="NewsPortalIIT.API/NewsPortalIIT.API.csproj" />
+  <Project Path="NewsPortalIIT.Business/NewsPortalIIT.Business.csproj" Id="e2a01eea-1965-4fe2-9895-7fc675be2397" />
+  <Project Path="NewsPortalIIT.Domain/NewsPortalIIT.Domain.csproj" Id="6b407989-dc5a-49a4-91a7-6b66cf481db8" />
+  <Project Path="NewsPortalIIT.Persistence/NewsPortalIIT.Persistence.csproj" Id="2add38e5-ee1d-4125-a5aa-c12b64402465" />
 </Solution>

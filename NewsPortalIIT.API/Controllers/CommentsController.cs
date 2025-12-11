@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NewsPortalIIT.Models;
+using NewsPortalIIT.API.Models;
 
-namespace NewsPortalIIT.Controllers;
+namespace NewsPortalIIT.API.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/comments")]
 [ApiController]
 public class CommentsController : BaseController
 {

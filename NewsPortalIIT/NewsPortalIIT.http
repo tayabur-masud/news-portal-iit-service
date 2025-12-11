@@ -1,6 +1,0 @@
-@NewsPortalIIT_HostAddress = http://localhost:5241
-
-GET {{NewsPortalIIT_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

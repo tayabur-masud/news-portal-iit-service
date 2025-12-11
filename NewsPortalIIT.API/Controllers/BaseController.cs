@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NewsPortalIIT.Models;
+using NewsPortalIIT.API.Models;
 
-namespace NewsPortalIIT.Controllers;
+namespace NewsPortalIIT.API.Controllers;
 
 public class BaseController : ControllerBase
 {
@@ -18,18 +18,33 @@ public class BaseController : ControllerBase
     {
         if (!System.IO.File.Exists(DbPath))
         {
-            return new DbData { News = new List<News>() };
+            return new DbData
+            {
+                Users = new List<User>(),
+                News = new List<News>(),
+                Comments = new List<Comment>()
+            };
         }
 
         var json = System.IO.File.ReadAllText(DbPath);
         try
         {
             var data = System.Text.Json.JsonSerializer.Deserialize<DbData>(json, _jsonOptions);
-            return data ?? new DbData { News = new List<News>() };
+            return data ?? new DbData
+            { 
+                Users = new List<User>(), 
+                News = new List<News>(), 
+                Comments = new List<Comment>() 
+            };
         }
         catch
         {
-            return new DbData { News = new List<News>() };
+            return new DbData
+            {
+                Users = new List<User>(),
+                News = new List<News>(),
+                Comments = new List<Comment>()
+            };
         }
     }
 
