@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 using NewsPortalIIT.Domain.Repositories;
+using System.Linq.Expressions;
 
 namespace NewsPortalIIT.Persistence.Repositories;
 
@@ -15,14 +16,40 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
     {
-        return await _dbSet.ToListAsync();
+        IQueryable<T> query = _dbSet;
+
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+
+        return await query.ToListAsync();
     }
 
-    public async Task<T> GetByIdAsync(ObjectId id)
+    public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
     {
-        return await _dbSet.FindAsync(id);
+        IQueryable<T> query = _dbSet;
+
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+
+        return await query.Where(predicate).ToListAsync();
+    }
+
+    public async Task<T?> GetByIdAsync(ObjectId id, params Expression<Func<T, object>>[] includes)
+    {
+        IQueryable<T> query = _dbSet;
+
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+
+        return await query.FirstOrDefaultAsync(x => EF.Property<ObjectId>(x, "Id") == id);
     }
 
     public async Task AddAsync(T entity)

@@ -7,4 +7,13 @@
 		<RootNamespace>NewsPortalIIT.Business</RootNamespace>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <PackageReference Include="Mapster" Version="7.4.0" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\NewsPortalIIT.Domain\NewsPortalIIT.Domain.csproj" />
+	</ItemGroup>
+
 </Project>

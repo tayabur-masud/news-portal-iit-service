@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using NewsPortalIIT.Business;
 using NewsPortalIIT.Persistence;
-using NewsPortalIIT.Domain.Repositories;
-using NewsPortalIIT.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddBusinessLayer();
+builder.Services.AddPersistenceLayer();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -22,8 +23,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     var connectionString = builder.Configuration.GetConnectionString("MongoDb");
     options.UseMongoDB(connectionString, "NewsPortalIIT");
 });
-
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
 var app = builder.Build();
 

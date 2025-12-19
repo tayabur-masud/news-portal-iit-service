@@ -1,6 +1,7 @@
 
 # Visual Studio folders
 /.vs
+/.vscode
 [Oo]bj/
 [Bb]in/
 packages/
