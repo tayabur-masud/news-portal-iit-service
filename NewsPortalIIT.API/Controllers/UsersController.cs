@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
 using NewsPortalIIT.API.Models;
+using NewsPortalIIT.Business.Models;
+using NewsPortalIIT.Business.Services;
 
 namespace NewsPortalIIT.API.Controllers;
 
@@ -7,63 +10,43 @@ namespace NewsPortalIIT.API.Controllers;
 [ApiController]
 public class UsersController : BaseController
 {
-    [HttpGet]
-    public IEnumerable<User> Get()
+    private readonly IUserService _userService;
+
+    public UsersController(IUserService userService)
     {
-        var data = GetDbData();
-        return data.Users ?? new List<User>();
+        _userService = userService;
+    }
+
+    [HttpGet]
+    public async Task<IEnumerable<UserModel>> Get()
+    {
+        return await _userService.GetAllAsync();
     }
 
     [HttpGet("{id}")]
-    public User? Get(int id)
+    public async Task<UserResponse> Get(string id)
     {
-        var data = GetDbData();
-        return data.Users?.FirstOrDefault(n => n.Id == id);
+        var userModel = await _userService.GetByIdAsync(id);
+        return userModel.Adapt<UserResponse>();
     }
 
     [HttpPost]
-    public void Post([FromBody] User model)
+    public async Task Post([FromBody] UserRequest model)
     {
-        var data = GetDbData();
-
-        if (data.Users == null) data.Users = new List<User>();
-
-        // Generate ID
-        int newId = data.Users.Count != 0 ? data.Users.Max(n => n.Id) + 1 : 1;
-        model.Id = newId;
-
-        data.Users.Add(model);
-
-        SaveDbData(data);
+        await _userService.CreateAsync(model.Adapt<UserModel>());
     }
 
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] User model)
+    public async Task Put(string id, [FromBody] UserRequest model)
     {
-        var data = GetDbData();
-        if (data.Users == null) return;
-
-        var existingUser = data.Users.FirstOrDefault(n => n.Id == id);
-        if (existingUser != null)
-        {
-            existingUser.Name = model.Name;
-            existingUser.Email = model.Email;
-
-            SaveDbData(data);
-        }
+        var userModel = model.Adapt<UserModel>();
+        userModel.Id = id;
+        await _userService.UpdateAsync(userModel);
     }
 
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task Delete(string id)
     {
-        var data = GetDbData();
-        if (data.Users == null) return;
-
-        var userToDelete = data.Users.FirstOrDefault(n => n.Id == id);
-        if (userToDelete != null)
-        {
-            data.Users.Remove(userToDelete);
-            SaveDbData(data);
-        }
+        await _userService.DeleteAsync(id);
     }
 }

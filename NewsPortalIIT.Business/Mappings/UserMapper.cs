@@ -10,7 +10,7 @@ internal class UserMapper : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<UserModel, User>()
-            .Map(dest => dest.Id, src => ObjectId.Parse(src.Id))
+            .Map(dest => dest.Id, src => string.IsNullOrEmpty(src.Id) ? ObjectId.GenerateNewId() : ObjectId.Parse(src.Id))
             .Map(dest => dest.Name, src => src.Name)
             .Map(dest => dest.Email, src => src.Email)
             .IgnoreNonMapped(true);

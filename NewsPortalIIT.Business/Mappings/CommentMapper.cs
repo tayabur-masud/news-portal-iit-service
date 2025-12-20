@@ -10,7 +10,7 @@ internal class CommentMapper : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<CommentModel, Comment>()
-            .Map(dest => dest.Id, src => ObjectId.Parse(src.Id))
+            .Map(dest => dest.Id, src => string.IsNullOrEmpty(src.Id) ? ObjectId.GenerateNewId() : ObjectId.Parse(src.Id))
             .Map(dest => dest.Text, src => src.Text)
             .Map(dest => dest.AuthorId, src => ObjectId.Parse(src.AuthorId))
             .Map(dest => dest.NewsId, src => ObjectId.Parse(src.NewsId))

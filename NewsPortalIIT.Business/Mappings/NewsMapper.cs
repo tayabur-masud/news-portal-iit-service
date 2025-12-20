@@ -10,7 +10,7 @@ internal class NewsMapper : IRegister
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<NewsModel, News>()
-            .Map(dest => dest.Id, src => ObjectId.Parse(src.Id))
+            .Map(dest => dest.Id, src => string.IsNullOrEmpty(src.Id) ? ObjectId.GenerateNewId() : ObjectId.Parse(src.Id))
             .Map(dest => dest.Title, src => src.Title)
             .Map(dest => dest.Body, src => src.Body)
             .Map(dest => dest.AuthorId, src => ObjectId.Parse(src.AuthorId))
