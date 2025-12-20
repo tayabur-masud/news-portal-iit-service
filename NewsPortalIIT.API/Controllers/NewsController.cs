@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
 using NewsPortalIIT.API.Models;
+using NewsPortalIIT.Business.Models;
+using NewsPortalIIT.Business.Services;
 
 namespace NewsPortalIIT.API.Controllers;
 
@@ -7,65 +10,44 @@ namespace NewsPortalIIT.API.Controllers;
 [ApiController]
 public class NewsController : BaseController
 {
-    [HttpGet]
-    public IEnumerable<News> Get()
+    private readonly INewsService _newsService;
+
+    public NewsController(INewsService newsService)
     {
-        var data = GetDbData();
-        return data.News ?? new List<News>();
+        _newsService = newsService;
+    }
+
+    [HttpGet]
+    public async Task<IEnumerable<NewsResponse>> Get()
+    {
+        var news = await _newsService.GetAllAsync();
+        return news.Adapt<IEnumerable<NewsResponse>>();
     }
 
     [HttpGet("{id}")]
-    public News? Get(int id)
+    public async Task<NewsResponse?> Get(string id)
     {
-        var data = GetDbData();
-        return data.News?.FirstOrDefault(n => n.Id == id);
+        var news = await _newsService.GetByIdAsync(id);
+        return news?.Adapt<NewsResponse>();
     }
 
     [HttpPost]
-    public void Post([FromBody] News model)
+    public async Task Post([FromBody] NewsRequest model)
     {
-        var data = GetDbData();
-
-        if (data.News == null) data.News = new List<News>();
-
-        // Generate ID
-        int newId = data.News.Count != 0 ? data.News.Max(n => n.Id) + 1 : 1;
-        model.Id = newId;
-        model.CreatedAt = DateTime.UtcNow; // Ensure a date is set if not provided
-
-        data.News.Add(model);
-
-        SaveDbData(data);
+        await _newsService.CreateAsync(model.Adapt<NewsModel>());
     }
 
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] News model)
+    public async Task Put(string id, [FromBody] NewsRequest model)
     {
-        var data = GetDbData();
-        if (data.News == null) return;
-
-        var existingNews = data.News.FirstOrDefault(n => n.Id == id);
-        if (existingNews != null)
-        {
-            existingNews.Title = model.Title;
-            existingNews.Body = model.Body;
-            existingNews.AuthorId = model.AuthorId;
-
-            SaveDbData(data);
-        }
+        var newsModel = model.Adapt<NewsModel>();
+        newsModel.Id = id;
+        await _newsService.UpdateAsync(newsModel);
     }
 
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task Delete(string id)
     {
-        var data = GetDbData();
-        if (data.News == null) return;
-
-        var newsToDelete = data.News.FirstOrDefault(n => n.Id == id);
-        if (newsToDelete != null)
-        {
-            data.News.Remove(newsToDelete);
-            SaveDbData(data);
-        }
+        await _newsService.DeleteAsync(id);
     }
 }

@@ -20,7 +20,6 @@ public class BaseController : ControllerBase
         {
             return new DbData
             {
-                News = new List<News>(),
                 Comments = new List<Comment>()
             };
         }
@@ -30,16 +29,14 @@ public class BaseController : ControllerBase
         {
             var data = System.Text.Json.JsonSerializer.Deserialize<DbData>(json, _jsonOptions);
             return data ?? new DbData
-            { 
-                News = new List<News>(), 
-                Comments = new List<Comment>() 
+            {
+                Comments = new List<Comment>()
             };
         }
         catch
         {
             return new DbData
             {
-                News = new List<News>(),
                 Comments = new List<Comment>()
             };
         }

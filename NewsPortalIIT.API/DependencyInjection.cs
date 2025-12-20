@@ -16,6 +16,7 @@ public static class DependencyInjection
     {
         var config = TypeAdapterConfig.GlobalSettings;
         new UserMapper().Register(config);
+        new NewsMapper().Register(config);
 
         return services;
     }

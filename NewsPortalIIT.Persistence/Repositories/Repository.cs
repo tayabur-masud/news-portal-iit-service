@@ -16,40 +16,19 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet = _context.Set<T>();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
+    public async Task<IEnumerable<T>> GetAllAsync()
     {
-        IQueryable<T> query = _dbSet;
-
-        foreach (var include in includes)
-        {
-            query = query.Include(include);
-        }
-
-        return await query.ToListAsync();
+        return await _dbSet.ToListAsync();
     }
 
-    public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+    public async Task<IEnumerable<T>> GetAsync(Expression<Func<T, bool>> predicate)
     {
-        IQueryable<T> query = _dbSet;
-
-        foreach (var include in includes)
-        {
-            query = query.Include(include);
-        }
-
-        return await query.Where(predicate).ToListAsync();
+        return await _dbSet.Where(predicate).ToListAsync();
     }
 
-    public async Task<T?> GetByIdAsync(ObjectId id, params Expression<Func<T, object>>[] includes)
+    public async Task<T?> GetByIdAsync(ObjectId id)
     {
-        IQueryable<T> query = _dbSet;
-
-        foreach (var include in includes)
-        {
-            query = query.Include(include);
-        }
-
-        return await query.FirstOrDefaultAsync(x => EF.Property<ObjectId>(x, "Id") == id);
+        return await _dbSet.FindAsync(id);
     }
 
     public async Task AddAsync(T entity)

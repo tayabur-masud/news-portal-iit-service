@@ -18,9 +18,10 @@ public class UsersController : BaseController
     }
 
     [HttpGet]
-    public async Task<IEnumerable<UserModel>> Get()
+    public async Task<IEnumerable<UserResponse>> Get()
     {
-        return await _userService.GetAllAsync();
+        var users = await _userService.GetAllAsync();
+        return users.Adapt<IEnumerable<UserResponse>>();
     }
 
     [HttpGet("{id}")]

@@ -9,16 +9,31 @@ namespace NewsPortalIIT.Business.Services;
 public class CommentService : ICommentService
 {
     private readonly IRepository<Comment> _commentRepository;
+    private readonly IRepository<User> _userRepository;
 
-    public CommentService(IRepository<Comment> commentRepository)
+    public CommentService(
+        IRepository<Comment> commentRepository,
+        IRepository<User> userRepository)
     {
         _commentRepository = commentRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<IEnumerable<CommentModel>> GetByNewsIdAsync(string id)
     {
-        var comments = await _commentRepository.GetAsync(x => x.NewsId == ObjectId.Parse(id), x => x.Author);
-        return comments.Adapt<IEnumerable<CommentModel>>();
+        var commentsList = await _commentRepository.GetAsync(x => x.NewsId == ObjectId.Parse(id));
+        var commentModels = commentsList.Adapt<IEnumerable<CommentModel>>().ToList();
+
+        foreach (var commentModel in commentModels)
+        {
+            if (ObjectId.TryParse(commentModel.AuthorId, out var authorId))
+            {
+                var author = await _userRepository.GetByIdAsync(authorId);
+                commentModel.Author = author.Adapt<UserModel>();
+            }
+        }
+
+        return commentModels;
     }
 
     public async Task CreateAsync(CommentModel commentModel)
