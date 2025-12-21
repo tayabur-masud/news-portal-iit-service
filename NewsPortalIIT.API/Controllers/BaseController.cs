@@ -3,6 +3,7 @@ using NewsPortalIIT.API.Models;
 
 namespace NewsPortalIIT.API.Controllers;
 
+[Consumes("application/json")]
 public class BaseController : ControllerBase
 {
     protected static readonly System.Text.Json.JsonSerializerOptions _jsonOptions = new()

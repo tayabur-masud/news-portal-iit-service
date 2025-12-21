@@ -49,6 +49,7 @@ public class NewsService : INewsService
     public async Task CreateAsync(NewsModel newsModel)
     {
         var news = newsModel.Adapt<News>();
+        news.CreatedAt = DateTime.UtcNow;
         await _newsRepository.AddAsync(news);
     }
 
