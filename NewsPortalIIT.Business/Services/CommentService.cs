@@ -21,15 +21,28 @@ public class CommentService : ICommentService
 
     public async Task<IEnumerable<CommentModel>> GetByNewsIdAsync(string id)
     {
-        var commentsList = await _commentRepository.GetAsync(x => x.NewsId == ObjectId.Parse(id));
+        var newsId = ObjectId.Parse(id);
+        var commentsList = (await _commentRepository.GetAsync(x => x.NewsId == newsId)).ToList();
         var commentModels = commentsList.Adapt<IEnumerable<CommentModel>>().ToList();
 
+        if (commentModels.Count == 0) return commentModels;
+
+        // Batch load Authors
+        var authorIds = commentsList
+            .Where(c => c.AuthorId != ObjectId.Empty)
+            .Select(c => c.AuthorId)
+            .Distinct()
+            .ToList();
+
+        var authors = await _userRepository.GetAsync(u => authorIds.Contains(u.Id));
+        var authorMap = authors.Adapt<IEnumerable<UserModel>>().ToDictionary(a => a.Id);
+
+        // Assign Authors
         foreach (var commentModel in commentModels)
         {
-            if (ObjectId.TryParse(commentModel.AuthorId, out var authorId))
+            if (authorMap.TryGetValue(commentModel.AuthorId, out var author))
             {
-                var author = await _userRepository.GetByIdAsync(authorId);
-                commentModel.Author = author.Adapt<UserModel>();
+                commentModel.Author = author;
             }
         }
 

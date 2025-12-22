@@ -28,12 +28,43 @@ public class NewsService : INewsService
 
     public async Task<IEnumerable<NewsModel>> GetAllAsync()
     {
-        var newsList = await _newsRepository.GetAllAsync();
+        var newsList = (await _newsRepository.GetAllAsync()).ToList();
         var newsModels = newsList.Adapt<IEnumerable<NewsModel>>().ToList();
 
+        if (newsModels.Count == 0) return newsModels;
+
+        // Batch load Authors
+        var authorIds = newsList
+            .Where(n => n.AuthorId != ObjectId.Empty)
+            .Select(n => n.AuthorId)
+            .Distinct()
+            .ToList();
+
+        var authors = await _userRepository.GetAsync(u => authorIds.Contains(u.Id));
+        var authorMap = authors.Adapt<IEnumerable<UserModel>>().ToDictionary(a => a.Id);
+
+        // Batch load Comments
+        var newsIds = newsList.Select(n => n.Id).ToList();
+        var allComments = await _commentRepository.GetAsync(c => newsIds.Contains(c.NewsId));
+        var commentModels = allComments.Adapt<IEnumerable<CommentModel>>().ToList();
+        var commentsGroupedByNews = commentModels.GroupBy(c => c.NewsId).ToDictionary(g => g.Key, g => g.ToList());
+
+        // Assign related data
         foreach (var newsModel in newsModels)
         {
-            await LoadRelatedData(newsModel);
+            if (authorMap.TryGetValue(newsModel.AuthorId, out var author))
+            {
+                newsModel.Author = author;
+            }
+
+            if (commentsGroupedByNews.TryGetValue(newsModel.Id, out var comments))
+            {
+                newsModel.Comments = comments;
+            }
+            else
+            {
+                newsModel.Comments = new List<CommentModel>();
+            }
         }
 
         return newsModels;
