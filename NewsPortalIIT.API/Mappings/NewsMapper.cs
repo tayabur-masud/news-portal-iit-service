@@ -11,8 +11,7 @@ public class NewsMapper : IRegister
         config.NewConfig<NewsRequest, NewsModel>()
             .Map(dest => dest.Title, src => src.Title)
             .Map(dest => dest.Body, src => src.Body)
-            .Map(dest => dest.AuthorId, src => src.AuthorId)
-            .Map(dest => dest.CreatedAt, src => src.CreatedAt);
+            .Map(dest => dest.AuthorId, src => src.AuthorId);
 
         config.NewConfig<NewsModel, NewsResponse>()
             .Map(dest => dest.Id, src => src.Id)

@@ -24,6 +24,11 @@ public class UserService : IUserService
     public async Task<UserModel> GetByIdAsync(string id)
     {
         var user = await _userRepository.GetByIdAsync(ObjectId.Parse(id));
+        if (user is null)
+        {
+            throw new Exception("User not found");
+        }
+
         return user.Adapt<UserModel>();
     }
 
@@ -36,6 +41,11 @@ public class UserService : IUserService
     public async Task UpdateAsync(UserModel userModel)
     {
         var user = userModel.Adapt<User>();
+        if (user is null)
+        {
+            throw new Exception("User not found");
+        }
+
         await _userRepository.UpdateAsync(user);
     }
 

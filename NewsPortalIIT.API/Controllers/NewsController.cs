@@ -7,15 +7,11 @@ using NewsPortalIIT.Business.Services;
 namespace NewsPortalIIT.API.Controllers;
 
 [Route("api/news")]
+[Consumes("application/json")]
 [ApiController]
-public class NewsController : BaseController
+public class NewsController(INewsService newsService) : ControllerBase
 {
-    private readonly INewsService _newsService;
-
-    public NewsController(INewsService newsService)
-    {
-        _newsService = newsService;
-    }
+    private readonly INewsService _newsService = newsService;
 
     [HttpGet]
     public async Task<IEnumerable<NewsResponse>> Get()

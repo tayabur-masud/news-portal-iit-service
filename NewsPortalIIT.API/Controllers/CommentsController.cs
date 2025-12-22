@@ -1,71 +1,42 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
 using NewsPortalIIT.API.Models;
+using NewsPortalIIT.Business.Models;
+using NewsPortalIIT.Business.Services;
 
 namespace NewsPortalIIT.API.Controllers;
 
 [Route("api/comments")]
+[Consumes("application/json")]
 [ApiController]
-public class CommentsController : BaseController
+public class CommentsController(ICommentService commentService) : ControllerBase
 {
-    [HttpGet]
-    public IEnumerable<Comment> Get()
-    {
-        var data = GetDbData();
-        return data.Comments ?? new List<Comment>();
-    }
+    private readonly ICommentService _commentService = commentService;
 
-    [HttpGet("{id}")]
-    public Comment? Get(int id)
+    [HttpGet("news/{id}")]
+    public async Task<IEnumerable<CommentResponse>> GetByNews(string id)
     {
-        var data = GetDbData();
-        return data.Comments?.FirstOrDefault(n => n.Id == id);
+        var comments = await _commentService.GetByNewsIdAsync(id);
+        return comments.Adapt<IEnumerable<CommentResponse>>();
     }
 
     [HttpPost]
-    public void Post([FromBody] Comment model)
+    public async Task Post([FromBody] CommentRequest model)
     {
-        var data = GetDbData();
-
-        if (data.Comments == null) data.Comments = new List<Comment>();
-
-        // Generate ID
-        int newId = data.Comments.Count != 0 ? data.Comments.Max(n => n.Id) + 1 : 1;
-        model.Id = newId;
-        model.CreatedAt = DateTime.UtcNow; // Ensure a date is set if not provided
-
-        data.Comments.Add(model);
-
-        SaveDbData(data);
+        await _commentService.CreateAsync(model.Adapt<CommentModel>());
     }
 
     [HttpPut("{id}")]
-    public void Put(int id, [FromBody] Comment model)
+    public async Task Put(string id, [FromBody] CommentRequest model)
     {
-        var data = GetDbData();
-        if (data.Comments == null) return;
-
-        var existingComment = data.Comments.FirstOrDefault(n => n.Id == id);
-        if (existingComment != null)
-        {
-            existingComment.Text = model.Text;
-            existingComment.AuthorId = model.AuthorId;
-            existingComment.NewsId = model.NewsId;
-
-            SaveDbData(data);
-        }
+        var commentModel = model.Adapt<CommentModel>();
+        commentModel.Id = id;
+        await _commentService.UpdateAsync(commentModel);
     }
 
     [HttpDelete("{id}")]
-    public void Delete(int id)
+    public async Task Delete(string id)
     {
-        var data = GetDbData();
-        if (data.Comments == null) return;
-
-        var commentToDelete = data.Comments.FirstOrDefault(n => n.Id == id);
-        if (commentToDelete != null)
-        {
-            data.Comments.Remove(commentToDelete);
-            SaveDbData(data);
-        }
+        await _commentService.DeleteAsync(id);
     }
 }

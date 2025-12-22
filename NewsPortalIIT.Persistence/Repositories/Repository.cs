@@ -46,9 +46,19 @@ public class Repository<T> : IRepository<T> where T : class
     public async Task DeleteAsync(ObjectId id)
     {
         var entity = await _dbSet.FindAsync(id);
-        if (entity != null)
+        if (entity is not null)
         {
             _dbSet.Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    public async Task DeleteAsync(Expression<Func<T, bool>> predicate)
+    {
+        var entities = await _dbSet.Where(predicate).ToListAsync();
+        if (entities.Count!=0)
+        {
+            _dbSet.RemoveRange(entities);
             await _context.SaveChangesAsync();
         }
     }

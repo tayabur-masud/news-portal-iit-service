@@ -7,15 +7,11 @@ using NewsPortalIIT.Business.Services;
 namespace NewsPortalIIT.API.Controllers;
 
 [Route("api/users")]
+[Consumes("application/json")]
 [ApiController]
-public class UsersController : BaseController
+public class UsersController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService;
-
-    public UsersController(IUserService userService)
-    {
-        _userService = userService;
-    }
+    private readonly IUserService _userService = userService;
 
     [HttpGet]
     public async Task<IEnumerable<UserResponse>> Get()

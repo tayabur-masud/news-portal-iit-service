@@ -45,7 +45,15 @@ public class CommentService : ICommentService
 
     public async Task UpdateAsync(CommentModel commentModel)
     {
+        var commentFromDb = await _commentRepository.GetByIdAsync(ObjectId.Parse(commentModel.Id));
+
+        if (commentFromDb is null)
+        {
+            throw new Exception("Comment not found");
+        }
+
         var comment = commentModel.Adapt<Comment>();
+        comment.CreatedAt = commentFromDb.CreatedAt;
         await _commentRepository.UpdateAsync(comment);
     }
 
