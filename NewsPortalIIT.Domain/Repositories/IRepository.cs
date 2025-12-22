@@ -51,5 +51,15 @@ public interface IRepository<T> where T : class
     /// Deletes entities that match the specified predicate.
     /// </summary>
     /// <param name="predicate">The expression to filter entities for deletion.</param>
+    /// <inheritdoc/>
     Task DeleteAsync(Expression<Func<T, bool>> predicate);
+
+    /// <summary>
+    /// Retrieves a paged collection of entities that match the specified predicate.
+    /// </summary>
+    /// <param name="predicate">The expression to filter the entities.</param>
+    /// <param name="pageNumber">The page number (1-indexed).</param>
+    /// <param name="pageSize">The number of items per page.</param>
+    /// <returns>A tuple containing the items for the current page and the total count of matching entities.</returns>
+    Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(Expression<Func<T, bool>> predicate, int pageNumber, int pageSize);
 }

@@ -23,6 +23,8 @@ internal class NewsMapper : IRegister
             .Map(dest => dest.Body, src => src.Body)
             .Map(dest => dest.AuthorId, src => src.AuthorId.ToString())
             .Map(dest => dest.CreatedAt, src => src.CreatedAt)
-            .Map(dest => dest.Author, src => src.Author);
+            .Map(dest => dest.Author, src => src.Author)
+            .Map(dest => dest.Comments, src => src.Comments)
+            .IgnoreNonMapped(true);
     }
 }

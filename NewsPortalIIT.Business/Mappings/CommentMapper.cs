@@ -23,7 +23,6 @@ internal class CommentMapper : IRegister
             .Map(dest => dest.AuthorId, src => src.AuthorId.ToString())
             .Map(dest => dest.NewsId, src => src.NewsId.ToString())
             .Map(dest => dest.CreatedAt, src => src.CreatedAt)
-            .Map(dest => dest.Author, src => src.Author)
-            .Map(dest => dest.News, src => src.News);
+            .IgnoreNonMapped(true);
     }
 }

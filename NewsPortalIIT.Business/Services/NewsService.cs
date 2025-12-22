@@ -1,5 +1,6 @@
 using Mapster;
 using MongoDB.Bson;
+using System.Linq.Expressions;
 using NewsPortalIIT.Business.Models;
 using NewsPortalIIT.Domain.Models;
 using NewsPortalIIT.Domain.Repositories;
@@ -24,50 +25,6 @@ public class NewsService : INewsService
         _userRepository = userRepository;
         _commentRepository = commentRepository;
         _unitOfWork = unitOfWork;
-    }
-
-    public async Task<IEnumerable<NewsModel>> GetAllAsync()
-    {
-        var newsList = (await _newsRepository.GetAllAsync()).ToList();
-        var newsModels = newsList.Adapt<IEnumerable<NewsModel>>().ToList();
-
-        if (newsModels.Count == 0) return newsModels;
-
-        // Batch load Authors
-        var authorIds = newsList
-            .Where(n => n.AuthorId != ObjectId.Empty)
-            .Select(n => n.AuthorId)
-            .Distinct()
-            .ToList();
-
-        var authors = await _userRepository.GetAsync(u => authorIds.Contains(u.Id));
-        var authorMap = authors.Adapt<IEnumerable<UserModel>>().ToDictionary(a => a.Id);
-
-        // Batch load Comments
-        var newsIds = newsList.Select(n => n.Id).ToList();
-        var allComments = await _commentRepository.GetAsync(c => newsIds.Contains(c.NewsId));
-        var commentModels = allComments.Adapt<IEnumerable<CommentModel>>().ToList();
-        var commentsGroupedByNews = commentModels.GroupBy(c => c.NewsId).ToDictionary(g => g.Key, g => g.ToList());
-
-        // Assign related data
-        foreach (var newsModel in newsModels)
-        {
-            if (authorMap.TryGetValue(newsModel.AuthorId, out var author))
-            {
-                newsModel.Author = author;
-            }
-
-            if (commentsGroupedByNews.TryGetValue(newsModel.Id, out var comments))
-            {
-                newsModel.Comments = comments;
-            }
-            else
-            {
-                newsModel.Comments = new List<CommentModel>();
-            }
-        }
-
-        return newsModels;
     }
 
     public async Task<NewsModel> GetByIdAsync(string id)
@@ -122,6 +79,89 @@ public class NewsService : INewsService
         }
     }
 
+    public async Task<PagedResult<NewsModel>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm)
+    {
+        Expression<Func<News, bool>> predicate = n => true;
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            predicate = n => n.Title.Contains(searchTerm);
+        }
+
+        var (newsList, totalCount) = await _newsRepository.GetPagedAsync(predicate, pageNumber, pageSize);
+
+        if (newsList.Any())
+        {
+            // Batch load Authors
+            var authorIds = newsList
+                .Where(n => n.AuthorId != ObjectId.Empty)
+                .Select(n => n.AuthorId)
+                .Distinct()
+                .ToList();
+
+            if (authorIds.Count != 0)
+            {
+                var authors = (await _userRepository.GetAsync(u => authorIds.Contains(u.Id))).ToDictionary(u => u.Id);
+
+                foreach (var news in newsList)
+                {
+                    if (authors.TryGetValue(news.AuthorId, out var author))
+                    {
+                        news.Author = author;
+                    }
+                }
+            }
+
+            // Batch load Comments
+            var newsIds = newsList.Select(n => n.Id).ToList();
+            var allComments = (await _commentRepository.GetAsync(c => newsIds.Contains(c.NewsId))).ToList();
+
+            if (allComments.Any())
+            {
+                var commentAuthorIds = allComments
+                    .Where(c => c.AuthorId != ObjectId.Empty)
+                    .Select(c => c.AuthorId)
+                    .Distinct()
+                    .ToList();
+
+                if (commentAuthorIds.Any())
+                {
+                    var commentAuthors = (await _userRepository.GetAsync(u => commentAuthorIds.Contains(u.Id))).ToDictionary(u => u.Id);
+                    foreach (var comment in allComments)
+                    {
+                        if (commentAuthors.TryGetValue(comment.AuthorId, out var author))
+                        {
+                            comment.Author = author;
+                        }
+                    }
+                }
+            }
+
+            var commentsGroupedByNews = allComments.GroupBy(c => c.NewsId).ToDictionary(g => g.Key, g => g.ToList());
+
+            foreach (var news in newsList)
+            {
+                if (commentsGroupedByNews.TryGetValue(news.Id, out var comments))
+                {
+                    news.Comments = comments;
+                }
+                else
+                {
+                    news.Comments = new List<Comment>();
+                }
+            }
+        }
+
+        var newsModels = newsList.Adapt<IEnumerable<NewsModel>>().ToList();
+
+        return new PagedResult<NewsModel>
+        {
+            Items = newsModels,
+            TotalCount = totalCount,
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+    }
+
     private async Task LoadRelatedData(NewsModel newsModel)
     {
         if (ObjectId.TryParse(newsModel.AuthorId, out var authorId))
@@ -132,8 +172,37 @@ public class NewsService : INewsService
 
         if (ObjectId.TryParse(newsModel.Id, out var newsId))
         {
-            var comments = await _commentRepository.GetAsync(c => c.NewsId == newsId);
+            var comments = (await _commentRepository.GetAsync(c => c.NewsId == newsId)).ToList();
+            if (comments.Any())
+            {
+                var commentAuthorIds = comments
+                    .Where(c => c.AuthorId != ObjectId.Empty)
+                    .Select(c => c.AuthorId)
+                    .Distinct()
+                    .ToList();
+
+                if (commentAuthorIds.Any())
+                {
+                    var authors = (await _userRepository.GetAsync(u => commentAuthorIds.Contains(u.Id))).ToDictionary(u => u.Id);
+                    foreach (var comment in comments)
+                    {
+                        if (authors.TryGetValue(comment.AuthorId, out var author))
+                        {
+                            comment.Author = author;
+                        }
+                    }
+                }
+            }
             newsModel.Comments = comments.Adapt<ICollection<CommentModel>>();
+
+            foreach(var commentModel in newsModel.Comments)
+            {
+                if (commentModel.AuthorId is not null && ObjectId.TryParse(commentModel.AuthorId, out var commentAuthorId))
+                {
+                    var commentAuthor = await _userRepository.GetByIdAsync(commentAuthorId);
+                    commentModel.Author = commentAuthor.Adapt<UserModel>();
+                }
+            }
         }
     }
 }

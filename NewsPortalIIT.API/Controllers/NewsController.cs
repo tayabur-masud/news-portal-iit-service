@@ -14,10 +14,23 @@ public class NewsController(INewsService newsService) : ControllerBase
     private readonly INewsService _newsService = newsService;
 
     [HttpGet]
-    public async Task<IEnumerable<NewsResponse>> Get()
+    public async Task<PagedResponse<NewsResponse>> Get(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? searchTerm = null)
     {
-        var news = await _newsService.GetAllAsync();
-        return news.Adapt<IEnumerable<NewsResponse>>();
+        var result = await _newsService.GetPagedAsync(pageNumber, pageSize, searchTerm);
+
+        var response = new PagedResponse<NewsResponse>
+        {
+            Items = result.Items.Adapt<IEnumerable<NewsResponse>>(),
+            TotalCount = result.TotalCount,
+            PageNumber = result.PageNumber,
+            PageSize = result.PageSize,
+            TotalPages = result.TotalPages
+        };
+
+        return response;
     }
 
     [HttpGet("{id}")]

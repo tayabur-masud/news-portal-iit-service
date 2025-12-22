@@ -9,4 +9,5 @@ public class NewsResponse
     public string AuthorName { get; set; }
     public int NoOfComments { get; set; }
     public DateTime CreatedAt { get; set; }
+    public ICollection<CommentResponse> Comments { get; set; }
 }

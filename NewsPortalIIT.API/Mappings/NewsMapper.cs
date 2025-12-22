@@ -20,6 +20,7 @@ public class NewsMapper : IRegister
             .Map(dest => dest.AuthorId, src => src.AuthorId)
             .Map(dest => dest.AuthorName, src => src.Author != null ? src.Author.Name : "Unknown")
             .Map(dest => dest.NoOfComments, src => src.Comments != null ? src.Comments.Count : 0)
-            .Map(dest => dest.CreatedAt, src => src.CreatedAt);
+            .Map(dest => dest.CreatedAt, src => src.CreatedAt)
+            .Map(dest => dest.Comments, src => src.Comments);
     }
 }
