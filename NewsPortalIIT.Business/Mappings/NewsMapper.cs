@@ -5,8 +5,23 @@ using NewsPortalIIT.Domain.Models;
 
 namespace NewsPortalIIT.Business.Mappings;
 
+/// <summary>
+/// Configures Mapster type adapter mappings between <see cref="News"/> domain entity and <see cref="NewsModel"/> business model.
+/// Handles bidirectional conversion including ObjectId transformations and navigation properties.
+/// </summary>
 internal class NewsMapper : IRegister
 {
+    /// <summary>
+    /// Registers the mapping configurations for News entity and NewsModel.
+    /// </summary>
+    /// <param name="config">The Mapster type adapter configuration to register mappings with.</param>
+    /// <remarks>
+    /// Configures two-way mappings:
+    /// <list type="bullet">
+    /// <item><description>NewsModel to News: Converts string IDs to ObjectId, generates new ID if empty, ignores navigation properties</description></item>
+    /// <item><description>News to NewsModel: Converts ObjectId to string, includes Author and Comments navigation properties</description></item>
+    /// </list>
+    /// </remarks>
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<NewsModel, News>()

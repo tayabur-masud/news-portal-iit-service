@@ -8,6 +8,11 @@ using NewsPortalIIT.Domain.UnitOfWork;
 
 namespace NewsPortalIIT.Business.Services;
 
+/// <summary>
+/// Provides implementation for news article management operations.
+/// Handles CRUD operations for news articles with optimized batch loading of related author and comment data.
+/// Uses unit of work pattern for transactional operations.
+/// </summary>
 public class NewsService : INewsService
 {
     private readonly IRepository<News> _newsRepository;
@@ -15,6 +20,13 @@ public class NewsService : INewsService
     private readonly IRepository<Comment> _commentRepository;
     private readonly IUnitOfWork _unitOfWork;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NewsService"/> class.
+    /// </summary>
+    /// <param name="newsRepository">The repository for news data access.</param>
+    /// <param name="userRepository">The repository for user data access.</param>
+    /// <param name="commentRepository">The repository for comment data access.</param>
+    /// <param name="unitOfWork">The unit of work for managing transactions.</param>
     public NewsService(
         IRepository<News> newsRepository,
         IRepository<User> userRepository,
@@ -27,6 +39,7 @@ public class NewsService : INewsService
         _unitOfWork = unitOfWork;
     }
 
+    /// <inheritdoc/>
     public async Task<NewsModel> GetByIdAsync(string id)
     {
         var news = await _newsRepository.GetByIdAsync(ObjectId.Parse(id));
@@ -41,6 +54,7 @@ public class NewsService : INewsService
         return newsModel;
     }
 
+    /// <inheritdoc/>
     public async Task CreateAsync(NewsModel newsModel)
     {
         var news = newsModel.Adapt<News>();
@@ -48,6 +62,7 @@ public class NewsService : INewsService
         await _newsRepository.AddAsync(news);
     }
 
+    /// <inheritdoc/>
     public async Task UpdateAsync(NewsModel newsModel)
     {
         var newsFromDb = await _newsRepository.GetByIdAsync(ObjectId.Parse(newsModel.Id));
@@ -63,6 +78,11 @@ public class NewsService : INewsService
         await _newsRepository.UpdateAsync(news);
     }
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// This method uses a transaction to ensure that both the news article and all its associated comments
+    /// are deleted atomically. If any error occurs, the transaction is rolled back.
+    /// </remarks>
     public async Task DeleteAsync(string id)
     {
         await _unitOfWork.BeginTransactionAsync();
@@ -79,6 +99,15 @@ public class NewsService : INewsService
         }
     }
 
+    /// <inheritdoc/>
+    /// <remarks>
+    /// This method uses optimized batch loading to minimize database queries:
+    /// 1. Retrieves the requested page of news articles
+    /// 2. Batch loads all unique authors for the news articles
+    /// 3. Batch loads all comments for the news articles
+    /// 4. Batch loads all unique authors for the comments
+    /// This approach significantly improves performance compared to loading related data individually.
+    /// </remarks>
     public async Task<PagedResult<NewsModel>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm)
     {
         Expression<Func<News, bool>> predicate = n => true;
@@ -115,7 +144,7 @@ public class NewsService : INewsService
             var newsIds = newsList.Select(n => n.Id).ToList();
             var allComments = (await _commentRepository.GetAsync(c => newsIds.Contains(c.NewsId))).ToList();
 
-            if (allComments.Any())
+            if (allComments.Count != 0)
             {
                 var commentAuthorIds = allComments
                     .Where(c => c.AuthorId != ObjectId.Empty)
@@ -123,7 +152,7 @@ public class NewsService : INewsService
                     .Distinct()
                     .ToList();
 
-                if (commentAuthorIds.Any())
+                if (commentAuthorIds.Count != 0)
                 {
                     var commentAuthors = (await _userRepository.GetAsync(u => commentAuthorIds.Contains(u.Id))).ToDictionary(u => u.Id);
                     foreach (var comment in allComments)
@@ -162,6 +191,11 @@ public class NewsService : INewsService
         };
     }
 
+    /// <summary>
+    /// Loads related author and comment data for a news model.
+    /// Uses batch loading for comment authors to optimize database queries.
+    /// </summary>
+    /// <param name="newsModel">The news model to populate with related data.</param>
     private async Task LoadRelatedData(NewsModel newsModel)
     {
         if (ObjectId.TryParse(newsModel.AuthorId, out var authorId))
@@ -173,7 +207,7 @@ public class NewsService : INewsService
         if (ObjectId.TryParse(newsModel.Id, out var newsId))
         {
             var comments = (await _commentRepository.GetAsync(c => c.NewsId == newsId)).ToList();
-            if (comments.Any())
+            if (comments.Count != 0)
             {
                 var commentAuthorIds = comments
                     .Where(c => c.AuthorId != ObjectId.Empty)
@@ -181,7 +215,7 @@ public class NewsService : INewsService
                     .Distinct()
                     .ToList();
 
-                if (commentAuthorIds.Any())
+                if (commentAuthorIds.Count != 0)
                 {
                     var authors = (await _userRepository.GetAsync(u => commentAuthorIds.Contains(u.Id))).ToDictionary(u => u.Id);
                     foreach (var comment in comments)
@@ -195,7 +229,7 @@ public class NewsService : INewsService
             }
             newsModel.Comments = comments.Adapt<ICollection<CommentModel>>();
 
-            foreach(var commentModel in newsModel.Comments)
+            foreach (var commentModel in newsModel.Comments)
             {
                 if (commentModel.AuthorId is not null && ObjectId.TryParse(commentModel.AuthorId, out var commentAuthorId))
                 {
