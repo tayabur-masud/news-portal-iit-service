@@ -4,7 +4,7 @@ using NewsPortalIIT.Business.Models;
 
 namespace NewsPortalIIT.API.Mappings;
 
-public class NewsMapper : IRegister
+internal class NewsMapper : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

@@ -28,7 +28,7 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services">The service collection to add the repositories to.</param>
     /// <returns>The updated service collection.</returns>
-    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    private static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 

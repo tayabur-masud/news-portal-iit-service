@@ -4,7 +4,7 @@ using NewsPortalIIT.Business.Models;
 
 namespace NewsPortalIIT.API.Mappings;
 
-public class CommentMapper : IRegister
+internal class CommentMapper : IRegister
 {
     public void Register(TypeAdapterConfig config)
     {

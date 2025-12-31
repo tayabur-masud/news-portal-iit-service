@@ -28,7 +28,7 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services">The service collection to add configurations to.</param>
     /// <returns>The service collection for method chaining.</returns>
-    public static IServiceCollection AddMappingConfigurations(this IServiceCollection services)
+    private static IServiceCollection AddMappingConfigurations(this IServiceCollection services)
     {
         var config = TypeAdapterConfig.GlobalSettings;
         new UserMapper().Register(config);
@@ -43,7 +43,7 @@ public static class DependencyInjection
     /// </summary>
     /// <param name="services">The service collection to add services to.</param>
     /// <returns>The service collection for method chaining.</returns>
-    public static IServiceCollection AddServices(this IServiceCollection services)
+    private static IServiceCollection AddServices(this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<INewsService, NewsService>();
