@@ -52,13 +52,15 @@ public class UserService : IUserService
     /// <inheritdoc/>
     public async Task UpdateAsync(UserModel userModel)
     {
-        var user = userModel.Adapt<User>();
-        if (user is null)
+        var userFromDb = await _userRepository.GetByIdAsync(ObjectId.Parse(userModel.Id));
+        if (userFromDb is null)
         {
             throw new Exception("User not found");
         }
 
-        await _userRepository.UpdateAsync(user);
+        userModel.Adapt(userFromDb);
+
+        await _userRepository.UpdateAsync(userFromDb);
     }
 
     /// <inheritdoc/>

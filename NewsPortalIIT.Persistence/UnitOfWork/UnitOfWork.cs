@@ -14,7 +14,15 @@ public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     /// <inheritdoc/>
     public async Task BeginTransactionAsync()
     {
-        _transaction = await context.Database.BeginTransactionAsync();
+        try
+        {
+            _transaction = await context.Database.BeginTransactionAsync();
+        }
+        catch (NotSupportedException)
+        {
+            // Transactions not supported (e.g., standalone MongoDB)
+            _transaction = null;
+        }
     }
 
     /// <inheritdoc/>

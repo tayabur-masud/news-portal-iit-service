@@ -81,9 +81,9 @@ public class CommentService : ICommentService
             throw new Exception("Comment not found");
         }
 
-        var comment = commentModel.Adapt<Comment>();
-        comment.CreatedAt = commentFromDb.CreatedAt;
-        await _commentRepository.UpdateAsync(comment);
+        commentModel.Adapt(commentFromDb);
+
+        await _commentRepository.UpdateAsync(commentFromDb);
     }
 
     /// <inheritdoc/>

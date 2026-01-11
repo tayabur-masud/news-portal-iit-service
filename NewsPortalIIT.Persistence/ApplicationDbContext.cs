@@ -33,7 +33,11 @@ public class ApplicationDbContext : DbContext
     /// <inheritdoc/>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // This is typically handled by dependency injection in Program.cs
+        // Disable auto-transaction behavior for MongoDB provider
+        Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
+
+        // Enable sensitive data logging for better debugging of tracking errors
+        optionsBuilder.EnableSensitiveDataLogging();
     }
 
     /// <inheritdoc/>
