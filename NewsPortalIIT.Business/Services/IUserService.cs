@@ -39,4 +39,11 @@ public interface IUserService
     /// </summary>
     /// <param name="id">The unique identifier of the user to delete.</param>
     Task DeleteAsync(string id);
+
+    /// <summary>
+    /// Authenticates a user based on their email and password.
+    /// </summary>
+    /// <param name="loginRequest">The login request containing credentials.</param>
+    /// <returns>The authenticated user model if successful.</returns>
+    Task<UserModel> LoginAsync(LoginRequest loginRequest);
 }

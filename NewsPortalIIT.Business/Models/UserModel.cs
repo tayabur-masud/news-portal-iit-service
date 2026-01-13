@@ -20,4 +20,10 @@ public class UserModel
     /// Gets or sets the email address of the user.
     /// </summary>
     public string Email { get; set; }
+
+    /// <summary>
+    /// Gets or sets the password of the user.
+    /// This property is used for user creation and login, but not for displaying.
+    /// </summary>
+    public string Password { get; set; }
 }

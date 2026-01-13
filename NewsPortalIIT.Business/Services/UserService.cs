@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using NewsPortalIIT.Business.Models;
 using NewsPortalIIT.Domain.Models;
 using NewsPortalIIT.Domain.Repositories;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace NewsPortalIIT.Business.Services;
 
@@ -46,6 +47,7 @@ public class UserService : IUserService
     public async Task CreateAsync(UserModel userModel)
     {
         var user = userModel.Adapt<User>();
+        user.PasswordHash = BCryptNet.HashPassword(userModel.Password);
         await _userRepository.AddAsync(user);
     }
 
@@ -58,6 +60,7 @@ public class UserService : IUserService
             throw new Exception("User not found");
         }
 
+        userFromDb.PasswordHash = BCryptNet.HashPassword(userModel.Password);
         userModel.Adapt(userFromDb);
 
         await _userRepository.UpdateAsync(userFromDb);
@@ -67,5 +70,19 @@ public class UserService : IUserService
     public async Task DeleteAsync(string id)
     {
         await _userRepository.DeleteAsync(ObjectId.Parse(id));
+    }
+
+    /// <inheritdoc/>
+    public async Task<UserModel> LoginAsync(LoginRequest loginRequest)
+    {
+        var users = await _userRepository.GetAllAsync();
+        var user = users.FirstOrDefault(u => u.Email == loginRequest.Email);
+
+        if (user == null || !BCryptNet.Verify(loginRequest.Password, user.PasswordHash))
+        {
+            throw new Exception("Invalid email or password");
+        }
+
+        return user.Adapt<UserModel>();
     }
 }

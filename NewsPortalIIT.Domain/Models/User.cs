@@ -23,4 +23,9 @@ public class User
     /// Gets or sets the email address of the user.
     /// </summary>
     public string Email { get; set; }
+
+    /// <summary>
+    /// Gets or sets the hashed password of the user.
+    /// </summary>
+    public string PasswordHash { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NewsPortalIIT.API.Models;
 using NewsPortalIIT.Business.Models;
@@ -9,6 +10,7 @@ namespace NewsPortalIIT.API.Controllers;
 [Route("api/users")]
 [Consumes("application/json")]
 [ApiController]
+[AllowAnonymous]
 public class UsersController(IUserService userService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
