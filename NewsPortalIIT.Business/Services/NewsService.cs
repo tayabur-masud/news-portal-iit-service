@@ -104,7 +104,7 @@ public class NewsService : INewsService
         Expression<Func<News, bool>> predicate = n => true;
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            predicate = n => n.Title.Contains(searchTerm);
+            predicate = n => n.Title.ToLower().Contains(searchTerm.ToLower());
         }
 
         var (newsList, totalCount) = await _newsRepository.GetPagedAsync(predicate, pageNumber, pageSize);
