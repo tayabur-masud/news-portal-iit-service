@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using NewsPortalIIT.API.Models;
 using NewsPortalIIT.Business.Models;
 using NewsPortalIIT.Business.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace NewsPortalIIT.API.Controllers;
 
@@ -23,7 +25,9 @@ public class CommentsController(ICommentService commentService) : ControllerBase
     [HttpPost]
     public async Task Post([FromBody] CommentRequest model)
     {
-        await _commentService.CreateAsync(model.Adapt<CommentModel>());
+        var commentModel = model.Adapt<CommentModel>();
+        commentModel.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new UnauthorizedAccessException("AuthorId not found in token");
+        await _commentService.CreateAsync(commentModel);
     }
 
     [HttpPut("{id}")]
@@ -31,6 +35,7 @@ public class CommentsController(ICommentService commentService) : ControllerBase
     {
         var commentModel = model.Adapt<CommentModel>();
         commentModel.Id = id;
+        commentModel.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new UnauthorizedAccessException("AuthorId not found in token");
         await _commentService.UpdateAsync(commentModel);
     }
 

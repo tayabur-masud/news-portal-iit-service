@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using NewsPortalIIT.API.Models;
 using NewsPortalIIT.Business.Models;
 using NewsPortalIIT.Business.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace NewsPortalIIT.API.Controllers;
 
@@ -43,7 +45,9 @@ public class NewsController(INewsService newsService) : ControllerBase
     [HttpPost]
     public async Task Post([FromBody] NewsRequest model)
     {
-        await _newsService.CreateAsync(model.Adapt<NewsModel>());
+        var newsModel = model.Adapt<NewsModel>();
+        newsModel.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new UnauthorizedAccessException("AuthorId not found in token");
+        await _newsService.CreateAsync(newsModel);
     }
 
     [HttpPut("{id}")]
@@ -51,6 +55,7 @@ public class NewsController(INewsService newsService) : ControllerBase
     {
         var newsModel = model.Adapt<NewsModel>();
         newsModel.Id = id;
+        newsModel.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub) ?? throw new UnauthorizedAccessException("AuthorId not found in token");
         await _newsService.UpdateAsync(newsModel);
     }
 

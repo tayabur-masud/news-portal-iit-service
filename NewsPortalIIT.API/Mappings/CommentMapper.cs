@@ -10,7 +10,6 @@ internal class CommentMapper : IRegister
     {
         config.NewConfig<CommentRequest, CommentModel>()
             .Map(dest => dest.Text, src => src.Text)
-            .Map(dest => dest.AuthorId, src => src.AuthorId)
             .Map(dest => dest.NewsId, src => src.NewsId);
 
         config.NewConfig<CommentModel, CommentResponse>()
